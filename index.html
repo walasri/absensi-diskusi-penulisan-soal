@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Diskusi Mekanisme Penulisan Soal TKA</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Menggunakan font Inter sebagai font utama */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1c64f2',
+                        'soft-gray': '#e5e7eb',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="form-container" class="w-full max-w-lg bg-white p-8 md:p-10 rounded-xl shadow-2xl border border-gray-100">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2 text-center">Formulir Kehadiran</h1>
+        <p class="text-lg text-gray-600 mb-8 text-center">Diskusi Mekanisme Penulisan Soal TKA SD/SMP</p>
+
+        <!-- Pesan Feedback (Success/Error) -->
+        <div id="feedback" class="hidden p-4 mb-4 text-sm rounded-lg" role="alert">
+            <span class="font-medium" id="feedback-message"></span>
+        </div>
+        
+        <form id="absensiForm" class="space-y-6">
+            
+            <!-- 1. Nama -->
+            <div>
+                <label for="nama" class="block mb-2 text-sm font-medium text-gray-900">Nama Lengkap</label>
+                <input type="text" id="nama" name="Nama" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Masukkan nama Anda" required>
+            </div>
+            
+            <!-- 2. NIP (Tambahan) -->
+            <div>
+                <label for="nip" class="block mb-2 text-sm font-medium text-gray-900">NIP (Nomor Induk Pegawai)</label>
+                <input type="text" id="nip" name="NIP" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Masukkan NIP Anda (Contoh: 198012312000001001)" required>
+            </div>
+
+            <!-- 3. Kabupaten -->
+            <div>
+                <label for="kabupaten" class="block mb-2 text-sm font-medium text-gray-900">Kabupaten/Kota</label>
+                <input type="text" id="kabupaten" name="Kabupaten" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Contoh: Bandung" required>
+            </div>
+
+            <!-- 4. Instansi -->
+            <div>
+                <label for="instansi" class="block mb-2 text-sm font-medium text-gray-900">Instansi/Sekolah</label>
+                <input type="text" id="instansi" name="Instansi" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Contoh: Dinas Pendidikan/SMPN 1" required>
+            </div>
+
+            <!-- 5. Jabatan (Dropdown) -->
+            <div>
+                <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">Jabatan/Peran</label>
+                <select id="jabatan" name="Jabatan" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" required>
+                    <option value="" disabled selected>Pilih salah satu peran</option>
+                    <option value="Admin Kabupaten">Admin Kabupaten</option>
+                    <option value="Penulis Soal">Penulis Soal</option>
+                </select>
+            </div>
+
+            <!-- 6. No Hp -->
+            <div>
+                <label for="no_hp" class="block mb-2 text-sm font-medium text-gray-900">Nomor Telepon (WhatsApp)</label>
+                <input type="tel" id="no_hp" name="No_HP" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Contoh: 0812xxxxxxxx" required pattern="[0-9]+">
+            </div>
+
+            <!-- Tombol Submit -->
+            <button type="submit" id="submitBtn" class="w-full text-white bg-primary-blue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base px-5 py-2.5 text-center transition duration-200">
+                <span id="btnText">Kirim Kehadiran</span>
+                <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('absensiForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const feedback = document.getElementById('feedback');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA!
+            // IKUTI PANDUAN DI FILE 'panduan_google_sheet.md' UNTUK MENDAPATKAN URL INI
+            const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzhqMv__3djcJEzt0Nrhw-atAOVAdHdYrnVhhUazyQ4p94YB_UnkoZjAMstddEDkyCqkw/exec'; 
+
+            
+            function showFeedback(message, type) {
+                feedback.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                if (type === 'success') {
+                    feedback.classList.add('bg-green-100', 'text-green-700');
+                } else if (type === 'error') {
+                    feedback.classList.add('bg-red-100', 'text-red-700');
+                }
+                feedbackMessage.textContent = message;
+                // Hilangkan pesan setelah 5 detik
+                setTimeout(() => {
+                    feedback.classList.add('hidden');
+                }, 5000);
+            }
+
+            function setFormLoading(isLoading) {
+                if (isLoading) {
+                    submitBtn.disabled = true;
+                    btnText.classList.add('hidden');
+                    loadingSpinner.classList.remove('hidden');
+                } else {
+                    submitBtn.disabled = false;
+                    btnText.classList.remove('hidden');
+                    loadingSpinner.classList.add('hidden');
+                }
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                feedback.classList.add('hidden'); // Sembunyikan pesan sebelumnya
+
+                // MENGHAPUS LOGIKA PEMERIKSAAN URL YANG SALAH.
+                // Logika sebelumnya selalu menghasilkan ERROR dan mencegah formulir dikirim.
+                // Sekarang formulir akan mencoba mengirim data ke URL yang telah Anda sediakan di atas.
+                
+                setFormLoading(true);
+
+                // Mengumpulkan data formulir
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value.trim();
+                }
+
+                // Mengubah objek data menjadi query string (format yang dibutuhkan Apps Script untuk POST)
+                const queryParams = new URLSearchParams(data).toString();
+
+                try {
+                    // MEMPERBAIKI SYNTAX ERROR: Menggunakan variabel GOOGLE_SHEET_WEB_APP_URL yang valid
+                    const response = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                        method: 'POST',
+                        // Body dikirim sebagai query string
+                        body: queryParams, 
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                    });
+
+                    // Apps Script biasanya mengembalikan JSON { 'result': 'success' } atau sejenisnya
+                    const result = await response.json(); 
+
+                    if (response.ok && result.result === 'success') {
+                        showFeedback('Kehadiran berhasil dicatat! Terima kasih atas partisipasi Anda.', 'success');
+                        form.reset(); // Kosongkan formulir setelah sukses
+                    } else if (result.error) {
+                        showFeedback(`Gagal mencatat kehadiran. Pesan error: ${result.error}`, 'error');
+                    } else {
+                         // Tangani response non-JSON atau status OK tapi bukan 'success'
+                        showFeedback('Terjadi kesalahan saat mengirim data. Pastikan Apps Script Web App sudah di-deploy dengan benar.', 'error');
+                    }
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showFeedback('Terjadi kesalahan koneksi. Silakan coba lagi.', 'error');
+                } finally {
+                    setFormLoading(false);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
