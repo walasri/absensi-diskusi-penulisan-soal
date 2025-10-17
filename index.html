@@ -50,16 +50,30 @@
                 <input type="text" id="nama" name="Nama" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Masukkan nama Anda" required>
             </div>
             
-            <!-- 2. NIP (Tambahan) -->
+            <!-- 2. NIP (Tambahan) - DIBATASI HARUS 18 DIGIT -->
             <div>
-                <label for="nip" class="block mb-2 text-sm font-medium text-gray-900">NIP (Nomor Induk Pegawai)</label>
-                <input type="text" id="nip" name="NIP" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Masukkan NIP Anda (Contoh: 198012312000001001)" required>
+                <label for="nip" class="block mb-2 text-sm font-medium text-gray-900">NIP (Nomor Induk Pegawai) </label>
+                <input type="text" id="nip" name="NIP" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" 
+                       placeholder="Masukkan NIP anda" 
+                       required 
+                       minlength="18" 
+                       maxlength="18" 
+                       pattern="\d{18}" 
+                       title="NIP harus terdiri tepat 18 digit angka.">
             </div>
 
-            <!-- 3. Kabupaten -->
+            <!-- 3. Kabupaten/Kota (Dropdown Baru) -->
             <div>
                 <label for="kabupaten" class="block mb-2 text-sm font-medium text-gray-900">Kabupaten/Kota</label>
-                <input type="text" id="kabupaten" name="Kabupaten" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" placeholder="Contoh: Bandung" required>
+                <select id="kabupaten" name="Kabupaten" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-blue focus:border-primary-blue block w-full p-2.5" required>
+                    <option value="" disabled selected>Pilih Kabupaten/Kota</option>
+                    <option value="Mamuju">Mamuju</option>
+                    <option value="Majene">Majene</option>
+                    <option value="Polewali Mandar">Polewali Mandar</option>
+                    <option value="Mamasa">Mamasa</option>
+                    <option value="Mamuju Tengah">Mamuju Tengah</option>
+                    <option value="Pasangkayu">Pasangkayu</option>
+                </select>
             </div>
 
             <!-- 4. Instansi -->
@@ -138,10 +152,6 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 feedback.classList.add('hidden'); // Sembunyikan pesan sebelumnya
-
-                // MENGHAPUS LOGIKA PEMERIKSAAN URL YANG SALAH.
-                // Logika sebelumnya selalu menghasilkan ERROR dan mencegah formulir dikirim.
-                // Sekarang formulir akan mencoba mengirim data ke URL yang telah Anda sediakan di atas.
                 
                 setFormLoading(true);
 
@@ -152,6 +162,15 @@
                     data[key] = value.trim();
                 }
 
+                // VALIDASI NIP KUSTOM: Memastikan tepat 18 digit dan hanya angka
+                const nipValue = data['NIP'];
+                // Regex: /^\d{18}$/ memastikan string hanya terdiri dari 18 digit angka
+                if (!/^\d{18}$/.test(nipValue)) {
+                    showFeedback('ERROR: NIP harus terdiri tepat 18 digit angka.', 'error');
+                    setFormLoading(false);
+                    return; // Hentikan proses submit jika validasi gagal
+                }
+                
                 // Mengubah objek data menjadi query string (format yang dibutuhkan Apps Script untuk POST)
                 const queryParams = new URLSearchParams(data).toString();
 
